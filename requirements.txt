@@ -1,0 +1,12 @@
+requests==2.31.0
+pandas==2.2.0
+numpy==1.26.4
+APScheduler==3.10.4
+streamlit==1.32.0
+plotly==5.20.0
+transformers==4.39.3
+sentence-transformers==2.6.1
+scikit-learn==1.4.1.post1
+torch==2.2.2
+matplotlib==3.8.3
+python-dotenv==1.0.1
