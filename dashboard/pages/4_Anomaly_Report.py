@@ -8,10 +8,9 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 import streamlit as st
 import pandas as pd
-import plotly.express as px
 import plotly.graph_objects as go
 
-from storage.database import get_anomaly_flags, get_eonet_events
+from dashboard.api_client import get_anomaly_flags, get_eonet_events
 
 st.set_page_config(page_title="Anomaly Report", page_icon="🚨", layout="wide")
 
@@ -56,7 +55,7 @@ col3.metric("Avg confidence", f"{flags_df['confidence'].mean():.1%}")
 st.markdown("---")
 
 # ---------------------------------------------------------------------------
-# Timeline chart — all windows with anomalies highlighted
+# Timeline chart
 # ---------------------------------------------------------------------------
 
 st.subheader("Event Count Timeline with Anomaly Flags")
@@ -68,12 +67,10 @@ plot_df = all_df.copy() if selected_cat == "All" else all_df[all_df["category_ti
 plot_df = plot_df.sort_values("period_start")
 
 if not plot_df.empty:
-    fig = go.Figure()
-
-    # Background: all window counts
-    normal   = plot_df[plot_df["is_anomaly"] == 0]
+    normal    = plot_df[plot_df["is_anomaly"] == 0]
     anomalous = plot_df[plot_df["is_anomaly"] == 1]
 
+    fig = go.Figure()
     fig.add_trace(go.Scatter(
         x=normal["period_start"],
         y=normal["event_count"],
@@ -89,7 +86,6 @@ if not plot_df.empty:
         marker=dict(color="#E63946", size=9, symbol="x"),
         text=anomalous["confidence"].apply(lambda c: f"Confidence: {c:.1%}"),
     ))
-
     fig.update_layout(
         height=400,
         xaxis_title="Window Start Date",
@@ -109,12 +105,10 @@ st.subheader("Flagged Anomalous Periods")
 display = flags_df[["period_start", "period_end", "category_title", "event_count", "confidence"]].copy()
 display.columns = ["Start", "End", "Category", "Event Count", "Confidence"]
 display["Confidence"] = display["Confidence"].apply(lambda x: f"{x:.1%}")
-display = display.sort_values("Confidence", ascending=False)
-
-st.dataframe(display, use_container_width=True, hide_index=True)
+st.dataframe(display.sort_values("Confidence", ascending=False), use_container_width=True, hide_index=True)
 
 # ---------------------------------------------------------------------------
-# Drill-down: show actual events for a selected anomalous window
+# Drill-down
 # ---------------------------------------------------------------------------
 
 st.markdown("---")

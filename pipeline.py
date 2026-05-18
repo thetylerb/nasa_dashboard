@@ -11,8 +11,11 @@ Each mode is safe to rerun; all writes use upsert semantics.
 
 import argparse
 import logging
+import os
 import sys
 from datetime import date
+
+os.makedirs("logs", exist_ok=True)
 
 logging.basicConfig(
     level=logging.INFO,

@@ -13,26 +13,22 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-from storage.database import get_eonet_events
+from dashboard.api_client import get_eonet_events
 
 st.set_page_config(page_title="Live Events Map", page_icon="🗺️", layout="wide")
 
-# ---------------------------------------------------------------------------
-# Category colour palette
-# ---------------------------------------------------------------------------
-
 CATEGORY_COLORS = {
-    "severeStorms":     "#E63946",
-    "wildfires":        "#F4A261",
-    "volcanoes":        "#E76F51",
-    "seaLakeIce":       "#457B9D",
-    "landslides":       "#A8C5A0",
-    "floods":           "#1D3557",
-    "earthquakes":      "#6A4C93",
-    "drought":          "#C9AE5D",
-    "dustHaze":         "#B5C9C3",
-    "manmade":          "#999999",
-    "snow":             "#A8DADC",
+    "severeStorms":        "#E63946",
+    "wildfires":           "#F4A261",
+    "volcanoes":           "#E76F51",
+    "seaLakeIce":          "#457B9D",
+    "landslides":          "#A8C5A0",
+    "floods":              "#1D3557",
+    "earthquakes":         "#6A4C93",
+    "drought":             "#C9AE5D",
+    "dustHaze":            "#B5C9C3",
+    "manmade":             "#999999",
+    "snow":                "#A8DADC",
     "temperatureExtremes": "#FF6B6B",
 }
 DEFAULT_COLOR = "#888888"
@@ -43,8 +39,8 @@ DEFAULT_COLOR = "#888888"
 
 st.sidebar.header("Filters")
 
-show_open   = st.sidebar.checkbox("Show open (active) events",   value=True)
-show_closed = st.sidebar.checkbox("Show closed (past) events",   value=False)
+show_open   = st.sidebar.checkbox("Show open (active) events", value=True)
+show_closed = st.sidebar.checkbox("Show closed (past) events", value=False)
 
 date_range = st.sidebar.date_input(
     "Event date range",
@@ -59,16 +55,11 @@ end_date   = str(date_range[1]) if isinstance(date_range, tuple) and len(date_ra
 # Load data
 # ---------------------------------------------------------------------------
 
-@st.cache_data(ttl=300)
-def load_events(s_open, s_closed, start, end):
-    rows = []
-    if s_open:
-        rows += get_eonet_events(status="open",   start_date=start, end_date=end, limit=5000)
-    if s_closed:
-        rows += get_eonet_events(status="closed", start_date=start, end_date=end, limit=5000)
-    return rows
-
-events = load_events(show_open, show_closed, start_date, end_date)
+events = []
+if show_open:
+    events += get_eonet_events(status="open",   start_date=start_date, end_date=end_date, limit=5000)
+if show_closed:
+    events += get_eonet_events(status="closed", start_date=start_date, end_date=end_date, limit=5000)
 
 # ---------------------------------------------------------------------------
 # Build map DataFrame
@@ -106,7 +97,7 @@ for e in events:
 df = pd.DataFrame(records)
 
 if df.empty:
-    st.warning("Events were found in the DB but none have usable coordinates.")
+    st.warning("Events were found but none have usable coordinates.")
     st.stop()
 
 # ---------------------------------------------------------------------------
