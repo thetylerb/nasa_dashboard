@@ -8,7 +8,10 @@ Run with:  python scheduler.py
 """
 
 import logging
+import os
 import sys
+
+os.makedirs("logs", exist_ok=True)
 
 logging.basicConfig(
     level=logging.INFO,

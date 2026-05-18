@@ -11,7 +11,7 @@ from datetime import date
 import streamlit as st
 import pandas as pd
 
-from storage.database import get_apod_entries
+from dashboard.api_client import get_apod_entries
 from config.config import APOD_CATEGORIES, APOD_START_DATE
 
 st.set_page_config(page_title="APOD Explorer", page_icon="🔭", layout="wide")
@@ -38,12 +38,8 @@ end_date   = str(date_range[1]) if isinstance(date_range, tuple) and len(date_ra
 # Load data
 # ---------------------------------------------------------------------------
 
-@st.cache_data(ttl=300)
-def load_apod(category, start, end):
-    cat = category if category != "All" else None
-    return get_apod_entries(classification=cat, start_date=start, end_date=end, limit=1000)
-
-entries = load_apod(selected_category, start_date, end_date)
+cat     = selected_category if selected_category != "All" else None
+entries = get_apod_entries(classification=cat, start_date=start_date, end_date=end_date, limit=1000)
 
 # ---------------------------------------------------------------------------
 # Page layout
@@ -57,7 +53,6 @@ if not entries:
 
 df = pd.DataFrame(entries)
 
-# Summary metrics
 col1, col2, col3, col4 = st.columns(4)
 col1.metric("Entries shown", len(df))
 col2.metric("Classified", int(df["classification"].notna().sum()))
@@ -66,7 +61,6 @@ col4.metric("Media types", df["media_type"].nunique())
 
 st.markdown("---")
 
-# Pick one entry to display in detail
 selected_date = st.selectbox(
     "Select an entry to view",
     options=df["date"].tolist(),
@@ -109,10 +103,6 @@ with col_meta:
 st.markdown("---")
 st.markdown("**Explanation**")
 st.write(entry.get("explanation", "—"))
-
-# ---------------------------------------------------------------------------
-# Browse table
-# ---------------------------------------------------------------------------
 
 st.markdown("---")
 st.subheader("Browse All")

@@ -13,12 +13,12 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
-from storage.database import get_apod_entries, get_eonet_events
+from dashboard.api_client import get_apod_entries, get_eonet_events
 
 st.set_page_config(page_title="Trend Analysis", page_icon="📈", layout="wide")
 
 # ---------------------------------------------------------------------------
-# Load data (cached)
+# Load data (cached by api_client)
 # ---------------------------------------------------------------------------
 
 @st.cache_data(ttl=600)

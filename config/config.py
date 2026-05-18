@@ -5,9 +5,16 @@ from dotenv import load_dotenv
 load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-DATA_DIR = BASE_DIR / "data"
 LOGS_DIR = BASE_DIR / "logs"
-DB_PATH = DATA_DIR / "nasa_pipeline.db"
+
+# PostgreSQL connection string — provided automatically by Railway's PostgreSQL plugin.
+# For local dev, run `docker-compose up` and set:
+#   DATABASE_URL=postgresql://nasa:nasa_secret@localhost:5432/nasa_pipeline
+DATABASE_URL = os.getenv("DATABASE_URL", "")
+
+# Base URL of the FastAPI backend — used by the Streamlit frontend.
+# Local dev: http://localhost:8000   Railway: https://<api-service>.up.railway.app
+API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000")
 
 # NASA API
 NASA_API_KEY = os.getenv("NASA_API_KEY", "DEMO_KEY")
