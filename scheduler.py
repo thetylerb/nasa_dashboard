@@ -10,6 +10,7 @@ Run with:  python scheduler.py
 import logging
 import os
 import sys
+from datetime import datetime, timezone
 
 os.makedirs("logs", exist_ok=True)
 
@@ -63,12 +64,15 @@ if __name__ == "__main__":
     init_db()
     scheduler = BlockingScheduler(timezone="UTC")
 
+    now = datetime.now(timezone.utc)
+
     scheduler.add_job(
         eonet_job,
         trigger=IntervalTrigger(hours=EONET_UPDATE_HOURS),
         id="eonet_update",
         name="EONET incremental update",
         replace_existing=True,
+        next_run_time=now,
     )
     scheduler.add_job(
         apod_job,
@@ -76,6 +80,7 @@ if __name__ == "__main__":
         id="apod_update",
         name="APOD daily update",
         replace_existing=True,
+        next_run_time=now,
     )
 
     logger.info(
